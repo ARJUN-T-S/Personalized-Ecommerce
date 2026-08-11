@@ -9,8 +9,14 @@ export default function Home() {
 
   useEffect(() => {
     getAllAdmins()
-      .then(r => setStores(r.data.slice(0, 6)))
-      .catch(() => {})
+      .then(r => {
+        if (Array.isArray(r.data)) {
+          setStores(r.data.slice(0, 6));
+        } else {
+          setStores([]);
+        }
+      })
+      .catch(() => setStores([]))
       .finally(() => setLoading(false));
   }, []);
 

@@ -12,7 +12,13 @@ export default function Stores() {
 
   useEffect(() => {
     getAllAdmins()
-      .then(r => setStores(r.data))
+      .then(r => {
+        if (Array.isArray(r.data)) {
+          setStores(r.data);
+        } else {
+          setStores([]);
+        }
+      })
       .catch(() => setError('Failed to load stores.'))
       .finally(() => setLoading(false));
   }, []);
