@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Ensure backend URL is properly formatted whether VITE_API_BASE_URL is set or defaults to /api
+const rawBaseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+const getNormalizedBaseURL = (url) => {
+  let trimmed = url.trim().replace(/\/+$/, '');
+  if (trimmed.startsWith('http') && !trimmed.endsWith('/api')) {
+    trimmed += '/api';
+  }
+  return trimmed;
+};
+
+const baseURL = getNormalizedBaseURL(rawBaseURL);
+
 const API = axios.create({ baseURL });
 
 // Attach JWT token automatically

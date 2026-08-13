@@ -5,16 +5,128 @@ const {
 } = require('../controllers/orderController');
 const { protectUser, protectAdmin } = require('../middleware/authMiddleware');
 
-// User routes
+/**
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     summary: Place a new order
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [storeId, items]
+ *             properties:
+ *               storeId:
+ *                 type: string
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               shippingAddress:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ */
 router.post('/', protectUser, placeOrder);
+
+/**
+ * @swagger
+ * /api/orders/my:
+ *   get:
+ *     summary: Get logged-in user order history
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User orders
+ */
 router.get('/my', protectUser, getMyOrders);
 
-// Admin routes
+/**
+ * @swagger
+ * /api/orders/store:
+ *   get:
+ *     summary: Get store orders for logged-in admin
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Store order list
+ */
 router.get('/store', protectAdmin, getStoreOrders);
+
+/**
+ * @swagger
+ * /api/orders/{id}/status:
+ *   put:
+ *     summary: Update order status (Admin)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Status updated
+ */
 router.put('/:id/status', protectAdmin, updateOrderStatus);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   delete:
+ *     summary: Delete order (Admin)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order deleted
+ *   get:
+ *     summary: Get order by ID
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order details
+ */
 router.delete('/:id', protectAdmin, deleteOrder);
 
-// Shared – either user or admin can access (controller handles auth check)
 router.get('/:id', (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) return res.status(401).json({ message: 'No token' });
